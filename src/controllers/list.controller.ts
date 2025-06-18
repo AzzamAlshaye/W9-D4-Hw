@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
-import { listStore } from "../store/list.store"
-import { itemStore } from "../store/item.store"
+import { ListModel } from "../models/list.schema" //  Mongoose model
+import { ItemModel } from "../models/item.schema" //  Mongoose model
 import { OK, CREATED, BAD_REQUEST, NOT_FOUND } from "../utils/http-status"
 
 // Create a new list
@@ -9,78 +9,52 @@ export const createList = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { title, description = "" } = req.body // Read title and optional description
+    const { title, description = "" } = req.body
 
-    // If title is missing, return 400 Bad Request
     if (!title) {
-      res.status(BAD_REQUEST).json({
-        success: false,
-        error: "Title is required",
-      })
+      res
+        .status(BAD_REQUEST)
+        .json({ success: false, error: "Title is required" })
       return
     }
 
-    // Create the list and return it with 201 Created
-    const list = listStore.create({ title, description })
-    res.status(CREATED).json({
-      success: true,
-      data: list,
-    })
-  } catch (error) {
-    // On error, return 400 with the error message
-    res.status(BAD_REQUEST).json({
-      success: false,
-      error: error instanceof Error ? error.message : "Failed to create list",
-    })
+    const list = await ListModel.create({ title, description })
+    res.status(CREATED).json({ success: true, data: list })
+  } catch (err: any) {
+    res
+      .status(BAD_REQUEST)
+      .json({ success: false, error: err.message || "Failed to create list" })
   }
 }
 
 // Get all lists
 export const getLists = async (_req: Request, res: Response): Promise<void> => {
   try {
-    // Fetch and return all lists with 200 OK
-    const lists = listStore.findAll()
-    res.status(OK).json({
-      success: true,
-      data: lists,
-    })
-  } catch (error) {
-    res.status(BAD_REQUEST).json({
-      success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch lists",
-    })
+    const lists = await ListModel.find().exec()
+    res.status(OK).json({ success: true, data: lists })
+  } catch (err: any) {
+    res
+      .status(BAD_REQUEST)
+      .json({ success: false, error: err.message || "Failed to fetch lists" })
   }
 }
 
 // Get a single list by ID, including its items
 export const getList = async (req: Request, res: Response): Promise<void> => {
   try {
-    // Look up the list
-    const list = listStore.findById(req.params.id)
+    const { id } = req.params
+    const list = await ListModel.findById(id).exec()
     if (!list) {
-      // If not found, return 404 Not Found
-      res.status(NOT_FOUND).json({
-        success: false,
-        error: "List not found",
-      })
+      res.status(NOT_FOUND).json({ success: false, error: "List not found" })
       return
     }
 
-    // Fetch items belonging to this list
-    const items = itemStore.findByListId(list.id)
-    // Return list data plus its items
-    res.status(OK).json({
-      success: true,
-      data: {
-        ...list,
-        items,
-      },
-    })
-  } catch (error) {
-    res.status(BAD_REQUEST).json({
-      success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch list",
-    })
+    const items = await ItemModel.find({ listId: id }).exec()
+    res.status(OK).json({ success: true, data: { ...list.toObject(), items } })
+  } catch (err: any) {
+    res
+      .status(BAD_REQUEST)
+      .json({ success: false, error: err.message || "Failed to fetch list" })
   }
 }
 
@@ -90,27 +64,22 @@ export const updateList = async (
   res: Response
 ): Promise<void> => {
   try {
-    // Attempt to update; if ID not found, update returns null/undefined
-    const list = listStore.update(req.params.id, req.body)
-    if (!list) {
-      // 404 if list doesn't exist
-      res.status(NOT_FOUND).json({
-        success: false,
-        error: "List not found",
-      })
+    const { id } = req.params
+    const updated = await ListModel.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+    }).exec()
+
+    if (!updated) {
+      res.status(NOT_FOUND).json({ success: false, error: "List not found" })
       return
     }
 
-    // Return updated list with 200 OK
-    res.status(OK).json({
-      success: true,
-      data: list,
-    })
-  } catch (error) {
-    res.status(BAD_REQUEST).json({
-      success: false,
-      error: error instanceof Error ? error.message : "Failed to update list",
-    })
+    res.status(OK).json({ success: true, data: updated })
+  } catch (err: any) {
+    res
+      .status(BAD_REQUEST)
+      .json({ success: false, error: err.message || "Failed to update list" })
   }
 }
 
@@ -120,29 +89,18 @@ export const deleteList = async (
   res: Response
 ): Promise<void> => {
   try {
-    // Try deleting the list; returns truthy if deleted
-    const deleted = listStore.delete(req.params.id)
+    const { id } = req.params
+    const deleted = await ListModel.findByIdAndDelete(id).exec()
     if (!deleted) {
-      // 404 if list not found
-      res.status(NOT_FOUND).json({
-        success: false,
-        error: "List not found",
-      })
+      res.status(NOT_FOUND).json({ success: false, error: "List not found" })
       return
     }
 
-    // Also remove any items tied to this list
-    itemStore.deleteByListId(req.params.id)
-
-    // Return empty object on success
-    res.status(OK).json({
-      success: true,
-      data: {},
-    })
-  } catch (error) {
-    res.status(BAD_REQUEST).json({
-      success: false,
-      error: error instanceof Error ? error.message : "Failed to delete list",
-    })
+    await ItemModel.deleteMany({ listId: id }).exec()
+    res.status(OK).json({ success: true, data: {} })
+  } catch (err: any) {
+    res
+      .status(BAD_REQUEST)
+      .json({ success: false, error: err.message || "Failed to delete list" })
   }
 }

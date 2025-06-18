@@ -1,6 +1,7 @@
+// src/controllers/Item.controller.ts
 import { Request, Response } from "express"
-import { itemStore } from "../store/item.store"
-import { listStore } from "../store/list.store"
+import { ItemModel } from "../models/item.schema" //  Mongoose model
+import { ListModel } from "../models/list.schema" //  Mongoose model
 import { OK, CREATED, BAD_REQUEST, NOT_FOUND } from "../utils/http-status"
 
 // Create a new item in a specific list
@@ -9,40 +10,35 @@ export const createItem = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { listId } = req.params // ID of the list from the URL
-    const { title, description = "", completed = false } = req.body // Read fields from request body
+    const { listId } = req.params
+    const { title, description = "", completed = false } = req.body
 
-    // If title is missing, return 400 Bad Request
     if (!title) {
-      res.status(BAD_REQUEST).json({
-        success: false,
-        error: "Title is required",
-      })
+      res
+        .status(BAD_REQUEST)
+        .json({ success: false, error: "Title is required" })
       return
     }
 
-    // Check that the list exists
-    const list = listStore.findById(listId)
+    // Verify the list exists
+    const list = await ListModel.findById(listId).exec()
     if (!list) {
-      res.status(NOT_FOUND).json({
-        // 404 if list not found
-        success: false,
-        error: "List not found",
-      })
+      res.status(NOT_FOUND).json({ success: false, error: "List not found" })
       return
     }
 
-    // Create the item and return it with 201 Created
-    const item = itemStore.create({ listId, title, description, completed })
-    res.status(CREATED).json({
-      success: true,
-      data: item,
+    // Create the item
+    const item = await ItemModel.create({
+      listId,
+      title,
+      description,
+      completed,
     })
-  } catch (error) {
-    // On any error, return 400 with the error message
+    res.status(CREATED).json({ success: true, data: item })
+  } catch (err: any) {
     res.status(BAD_REQUEST).json({
       success: false,
-      error: error instanceof Error ? error.message : "Failed to create item",
+      error: err.message || "Failed to create item",
     })
   }
 }
@@ -55,26 +51,20 @@ export const getListItems = async (
   try {
     const { listId } = req.params
 
-    // Ensure list exists
-    const list = listStore.findById(listId)
+    // Verify the list exists
+    const list = await ListModel.findById(listId).exec()
     if (!list) {
-      res.status(NOT_FOUND).json({
-        success: false,
-        error: "List not found",
-      })
+      res.status(NOT_FOUND).json({ success: false, error: "List not found" })
       return
     }
 
-    // Fetch and return items with 200 OK
-    const items = itemStore.findByListId(listId)
-    res.status(OK).json({
-      success: true,
-      data: items,
-    })
-  } catch (error) {
+    // Fetch items
+    const items = await ItemModel.find({ listId }).exec()
+    res.status(OK).json({ success: true, data: items })
+  } catch (err: any) {
     res.status(BAD_REQUEST).json({
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch items",
+      error: err.message || "Failed to fetch items",
     })
   }
 }
@@ -84,35 +74,27 @@ export const getItem = async (req: Request, res: Response): Promise<void> => {
   try {
     const { listId, id } = req.params
 
-    // Check list exists
-    const list = listStore.findById(listId)
+    // Verify the list exists
+    const list = await ListModel.findById(listId).exec()
     if (!list) {
-      res.status(NOT_FOUND).json({
-        success: false,
-        error: "List not found",
-      })
+      res.status(NOT_FOUND).json({ success: false, error: "List not found" })
       return
     }
 
-    // Check item exists and belongs to this list
-    const item = itemStore.findById(id)
-    if (!item || item.listId !== listId) {
-      res.status(NOT_FOUND).json({
-        success: false,
-        error: "Item not found in this list",
-      })
+    // Fetch the item
+    const item = await ItemModel.findById(id).exec()
+    if (!item || item.listId.toString() !== listId) {
+      res
+        .status(NOT_FOUND)
+        .json({ success: false, error: "Item not found in this list" })
       return
     }
 
-    // Return the item
-    res.status(OK).json({
-      success: true,
-      data: item,
-    })
-  } catch (error) {
+    res.status(OK).json({ success: true, data: item })
+  } catch (err: any) {
     res.status(BAD_REQUEST).json({
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch item",
+      error: err.message || "Failed to fetch item",
     })
   }
 }
@@ -126,35 +108,31 @@ export const updateItem = async (
     const { listId, id } = req.params
 
     // Verify the list exists
-    const list = listStore.findById(listId)
+    const list = await ListModel.findById(listId).exec()
     if (!list) {
-      res.status(NOT_FOUND).json({
-        success: false,
-        error: "List not found",
-      })
+      res.status(NOT_FOUND).json({ success: false, error: "List not found" })
       return
     }
 
-    // Verify the item exists and is in this list
-    const existingItem = itemStore.findById(id)
-    if (!existingItem || existingItem.listId !== listId) {
-      res.status(NOT_FOUND).json({
-        success: false,
-        error: "Item not found in this list",
-      })
+    // Update the item
+    const updated = await ItemModel.findOneAndUpdate(
+      { _id: id, listId },
+      req.body,
+      { new: true, runValidators: true }
+    ).exec()
+
+    if (!updated) {
+      res
+        .status(NOT_FOUND)
+        .json({ success: false, error: "Item not found in this list" })
       return
     }
 
-    // Perform the update with data from req.body
-    const item = itemStore.update(id, req.body)
-    res.status(OK).json({
-      success: true,
-      data: item,
-    })
-  } catch (error) {
+    res.status(OK).json({ success: true, data: updated })
+  } catch (err: any) {
     res.status(BAD_REQUEST).json({
       success: false,
-      error: error instanceof Error ? error.message : "Failed to update item",
+      error: err.message || "Failed to update item",
     })
   }
 }
@@ -167,36 +145,27 @@ export const deleteItem = async (
   try {
     const { listId, id } = req.params
 
-    // Ensure the parent list exists
-    const list = listStore.findById(listId)
+    // Verify the list exists
+    const list = await ListModel.findById(listId).exec()
     if (!list) {
-      res.status(NOT_FOUND).json({
-        success: false,
-        error: "List not found",
-      })
+      res.status(NOT_FOUND).json({ success: false, error: "List not found" })
       return
     }
 
-    // Ensure the item exists in that list
-    const existingItem = itemStore.findById(id)
-    if (!existingItem || existingItem.listId !== listId) {
-      res.status(NOT_FOUND).json({
-        success: false,
-        error: "Item not found in this list",
-      })
+    // Delete the item
+    const deleted = await ItemModel.findOneAndDelete({ _id: id, listId }).exec()
+    if (!deleted) {
+      res
+        .status(NOT_FOUND)
+        .json({ success: false, error: "Item not found in this list" })
       return
     }
 
-    // Delete the item and return empty object on success
-    itemStore.delete(id)
-    res.status(OK).json({
-      success: true,
-      data: {},
-    })
-  } catch (error) {
+    res.status(OK).json({ success: true, data: {} })
+  } catch (err: any) {
     res.status(BAD_REQUEST).json({
       success: false,
-      error: error instanceof Error ? error.message : "Failed to delete item",
+      error: err.message || "Failed to delete item",
     })
   }
 }

@@ -1,17 +1,15 @@
 // src/controllers/Car.controller.ts
 import { Request, Response } from "express"
-import { CarStore } from "../store/Car.store"
+import { CarModel } from "../models/Car.schema" //  Mongoose model
 import { OK, CREATED, BAD_REQUEST, NOT_FOUND } from "../utils/http-status"
 
 // Create a new car
 export const createCar = async (req: Request, res: Response): Promise<void> => {
   try {
-    // Allow dealerId/carMakeId from either body or URL params
     const dealerId = req.body.dealerId ?? req.params.dealerId
     const carMakeId = req.body.carMakeId ?? req.params.carMakeId
     const { name, price, year, color, wheelsCount } = req.body
 
-    // Validate required fields
     if (
       !dealerId ||
       !carMakeId ||
@@ -29,7 +27,7 @@ export const createCar = async (req: Request, res: Response): Promise<void> => {
       return
     }
 
-    const car = CarStore.create({
+    const car = await CarModel.create({
       dealerId,
       carMakeId,
       name,
@@ -38,11 +36,12 @@ export const createCar = async (req: Request, res: Response): Promise<void> => {
       color,
       wheelsCount,
     })
+
     res.status(CREATED).json({ success: true, data: car })
-  } catch (error) {
+  } catch (err: any) {
     res.status(BAD_REQUEST).json({
       success: false,
-      error: error instanceof Error ? error.message : "Failed to create car",
+      error: err.message || "Failed to create car",
     })
   }
 }
@@ -53,12 +52,12 @@ export const getAllCars = async (
   res: Response
 ): Promise<void> => {
   try {
-    const cars = CarStore.findAll()
+    const cars = await CarModel.find().exec()
     res.status(OK).json({ success: true, data: cars })
-  } catch (error) {
+  } catch (err: any) {
     res.status(BAD_REQUEST).json({
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch cars",
+      error: err.message || "Failed to fetch cars",
     })
   }
 }
@@ -70,8 +69,6 @@ export const getCarsByDealer = async (
 ): Promise<void> => {
   try {
     const { dealerId } = req.params
-
-    // 1) Validate that the client actually sent a dealerId
     if (!dealerId) {
       res
         .status(BAD_REQUEST)
@@ -79,29 +76,20 @@ export const getCarsByDealer = async (
       return
     }
 
-    // 2) Fetch and filter
-    const cars = CarStore.findAll().filter((car) => car.dealerId === dealerId)
-
-    // 3) If you want a 404 when there are no matching cars:
+    const cars = await CarModel.find({ dealerId }).exec()
     if (cars.length === 0) {
-      res
-        .status(NOT_FOUND)
-        .json({
-          success: false,
-          error: `No cars found for dealerId ${dealerId}`,
-        })
+      res.status(NOT_FOUND).json({
+        success: false,
+        error: `No cars found for dealerId ${dealerId}`,
+      })
       return
     }
 
-    // 4) Otherwise return the list
     res.status(OK).json({ success: true, data: cars })
-  } catch (error) {
+  } catch (err: any) {
     res.status(BAD_REQUEST).json({
       success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : "Failed to fetch cars by dealer",
+      error: err.message || "Failed to fetch cars by dealer",
     })
   }
 }
@@ -113,8 +101,6 @@ export const getCarsByCarMake = async (
 ): Promise<void> => {
   try {
     const { carMakeId } = req.params
-
-    // 1) Validate that the client actually sent a carMakeId
     if (!carMakeId) {
       res
         .status(BAD_REQUEST)
@@ -122,29 +108,20 @@ export const getCarsByCarMake = async (
       return
     }
 
-    // 2) Fetch and filter
-    const cars = CarStore.findAll().filter((car) => car.carMakeId === carMakeId)
-
-    // 3) If you want a 404 when there are no matching cars:
+    const cars = await CarModel.find({ carMakeId }).exec()
     if (cars.length === 0) {
-      res
-        .status(NOT_FOUND)
-        .json({
-          success: false,
-          error: `No cars found for carMakeId ${carMakeId}`,
-        })
+      res.status(NOT_FOUND).json({
+        success: false,
+        error: `No cars found for carMakeId ${carMakeId}`,
+      })
       return
     }
 
-    // 4) Otherwise return the list
     res.status(OK).json({ success: true, data: cars })
-  } catch (error) {
+  } catch (err: any) {
     res.status(BAD_REQUEST).json({
       success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : "Failed to fetch cars by car make",
+      error: err.message || "Failed to fetch cars by car make",
     })
   }
 }
@@ -156,16 +133,16 @@ export const getCarById = async (
 ): Promise<void> => {
   try {
     const { id } = req.params
-    const car = CarStore.findById(id)
+    const car = await CarModel.findById(id).exec()
     if (!car) {
       res.status(NOT_FOUND).json({ success: false, error: "Car not found" })
       return
     }
     res.status(OK).json({ success: true, data: car })
-  } catch (error) {
+  } catch (err: any) {
     res.status(BAD_REQUEST).json({
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch car",
+      error: err.message || "Failed to fetch car",
     })
   }
 }
@@ -174,17 +151,21 @@ export const getCarById = async (
 export const updateCar = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params
-    const existing = CarStore.findById(id)
-    if (!existing) {
+    const updated = await CarModel.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+    }).exec()
+
+    if (!updated) {
       res.status(NOT_FOUND).json({ success: false, error: "Car not found" })
       return
     }
-    const updated = CarStore.update(id, req.body)
+
     res.status(OK).json({ success: true, data: updated })
-  } catch (error) {
+  } catch (err: any) {
     res.status(BAD_REQUEST).json({
       success: false,
-      error: error instanceof Error ? error.message : "Failed to update car",
+      error: err.message || "Failed to update car",
     })
   }
 }
@@ -193,17 +174,16 @@ export const updateCar = async (req: Request, res: Response): Promise<void> => {
 export const deleteCar = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params
-    const existing = CarStore.findById(id)
-    if (!existing) {
+    const deleted = await CarModel.findByIdAndDelete(id).exec()
+    if (!deleted) {
       res.status(NOT_FOUND).json({ success: false, error: "Car not found" })
       return
     }
-    CarStore.delete(id)
     res.status(OK).json({ success: true, data: {} })
-  } catch (error) {
+  } catch (err: any) {
     res.status(BAD_REQUEST).json({
       success: false,
-      error: error instanceof Error ? error.message : "Failed to delete car",
+      error: err.message || "Failed to delete car",
     })
   }
 }
