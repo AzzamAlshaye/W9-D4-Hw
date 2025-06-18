@@ -1,4 +1,3 @@
-// src/app.ts
 import express, { Express, Request, Response, NextFunction } from "express"
 import cors from "cors"
 import helmet from "helmet"
@@ -10,6 +9,7 @@ import listRoutes from "./routes/list.routes"
 import itemRoutes from "./routes/item.routes"
 import dealerRouter from "./routes/CarDealer.routes"
 import makeRouter from "./routes/CarMake.routes"
+import { connectDB, deleteAllCollections } from "./config/database"
 import {
   carRouter,
   dealerCarsRouter,
@@ -20,6 +20,16 @@ import { OK, INTERNAL_SERVER_ERROR } from "./utils/http-status"
 
 // Load environment variables
 dotenv.config()
+
+// Connect to MongoDB
+connectDB()
+
+// If in development, clear existing collections on startup (optional)
+if (dev) {
+  deleteAllCollections()
+    .then(() => logger.info("All collections dropped (development mode)"))
+    .catch((err) => logger.error("Failed to drop collections:", err))
+}
 
 // Create Express app
 const app: Express = express()
