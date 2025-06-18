@@ -5,6 +5,12 @@
     "description": "REST API collection for the Todo application and Car dealership services",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    }
+  ],
   "item": [
     {
       "name": "Lists",
@@ -16,11 +22,11 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"My Todo List\",\n  \"description\": \"A list of tasks to complete\",\n  \"createdAt\": \"{{currentDate}}\",\n  \"updatedAt\": \"{{currentDate}}\"\n}"
+              "raw": "{\n  \"title\": \"My Todo List\",\n  \"description\": \"A list of tasks to complete\"\n}"
             },
             "url": {
-              "raw": "http://localhost:3000/api/lists",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/lists",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "lists"]
             }
           },
@@ -31,8 +37,8 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "http://localhost:3000/api/lists",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/lists",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "lists"]
             }
           },
@@ -43,8 +49,8 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "http://localhost:3000/api/lists/:id",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/lists/:id",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "lists", ":id"],
               "variable": [{ "key": "id", "value": "list-id-here" }]
             }
@@ -58,11 +64,11 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Updated List Title\",\n  \"description\": \"Updated description\",\n  \"updatedAt\": \"{{currentDate}}\"\n}"
+              "raw": "{\n  \"title\": \"Updated List Title\",\n  \"description\": \"Updated description\"\n}"
             },
             "url": {
-              "raw": "http://localhost:3000/api/lists/:id",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/lists/:id",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "lists", ":id"],
               "variable": [{ "key": "id", "value": "list-id-here" }]
             }
@@ -74,8 +80,8 @@
           "request": {
             "method": "DELETE",
             "url": {
-              "raw": "http://localhost:3000/api/lists/:id",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/lists/:id",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "lists", ":id"],
               "variable": [{ "key": "id", "value": "list-id-here" }]
             }
@@ -94,11 +100,11 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"New Todo Item\",\n  \"description\": \"Item description\",\n  \"completed\": false,\n  \"createdAt\": \"{{currentDate}}\",\n  \"updatedAt\": \"{{currentDate}}\"\n}"
+              "raw": "{\n  \"title\": \"New Todo Item\",\n  \"description\": \"Item description\",\n  \"completed\": false\n}"
             },
             "url": {
-              "raw": "http://localhost:3000/api/lists/:listId/items",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/lists/:listId/items",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "lists", ":listId", "items"],
               "variable": [{ "key": "listId", "value": "list-id-here" }]
             }
@@ -110,8 +116,8 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "http://localhost:3000/api/lists/:listId/items",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/lists/:listId/items",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "lists", ":listId", "items"],
               "variable": [{ "key": "listId", "value": "list-id-here" }]
             }
@@ -123,8 +129,8 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "http://localhost:3000/api/lists/:listId/items/:id",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/lists/:listId/items/:id",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "lists", ":listId", "items", ":id"],
               "variable": [
                 { "key": "listId", "value": "list-id-here" },
@@ -141,11 +147,11 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Updated Item Title\",\n  \"description\": \"Updated item description\",\n  \"completed\": true,\n  \"updatedAt\": \"{{currentDate}}\"\n}"
+              "raw": "{\n  \"title\": \"Updated Item Title\",\n  \"description\": \"Updated item description\",\n  \"completed\": true\n}"
             },
             "url": {
-              "raw": "http://localhost:3000/api/lists/:listId/items/:id",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/lists/:listId/items/:id",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "lists", ":listId", "items", ":id"],
               "variable": [
                 { "key": "listId", "value": "list-id-here" },
@@ -160,8 +166,8 @@
           "request": {
             "method": "DELETE",
             "url": {
-              "raw": "http://localhost:3000/api/lists/:listId/items/:id",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/lists/:listId/items/:id",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "lists", ":listId", "items", ":id"],
               "variable": [
                 { "key": "listId", "value": "list-id-here" },
@@ -183,11 +189,11 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Dealer Name\",\n  \"email\": \"dealer@example.com\",\n  \"city\": \"City Name\",\n  \"createdAt\": \"{{currentDate}}\",\n  \"updatedAt\": \"{{currentDate}}\"\n}"
+              "raw": "{\n  \"name\": \"Dealer Name\",\n  \"email\": \"dealer@example.com\",\n  \"city\": \"City Name\"\n}"
             },
             "url": {
-              "raw": "http://localhost:3000/api/dealers",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/dealers",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "dealers"]
             }
           },
@@ -198,8 +204,8 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "http://localhost:3000/api/dealers",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/dealers",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "dealers"]
             }
           },
@@ -210,8 +216,8 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "http://localhost:3000/api/dealers/:id",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/dealers/:id",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "dealers", ":id"],
               "variable": [{ "key": "id", "value": "dealer-id-here" }]
             }
@@ -225,11 +231,11 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Updated Dealer Name\",\n  \"email\": \"updated@example.com\",\n  \"city\": \"Updated City\",\n  \"updatedAt\": \"{{currentDate}}\"\n}"
+              "raw": "{\n  \"name\": \"Updated Dealer Name\",\n  \"email\": \"updated@example.com\",\n  \"city\": \"Updated City\"\n}"
             },
             "url": {
-              "raw": "http://localhost:3000/api/dealers/:id",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/dealers/:id",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "dealers", ":id"],
               "variable": [{ "key": "id", "value": "dealer-id-here" }]
             }
@@ -241,8 +247,8 @@
           "request": {
             "method": "DELETE",
             "url": {
-              "raw": "http://localhost:3000/api/dealers/:id",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/dealers/:id",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "dealers", ":id"],
               "variable": [{ "key": "id", "value": "dealer-id-here" }]
             }
@@ -261,11 +267,11 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"country\": \"Country\",\n  \"brand\": \"Brand\",\n  \"createdAt\": \"{{currentDate}}\",\n  \"updatedAt\": \"{{currentDate}}\"\n}"
+              "raw": "{\n  \"country\": \"Country\",\n  \"brand\": \"Brand\"\n}"
             },
             "url": {
-              "raw": "http://localhost:3000/api/carmakes",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/carmakes",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "carmakes"]
             }
           },
@@ -276,8 +282,8 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "http://localhost:3000/api/carmakes",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/carmakes",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "carmakes"]
             }
           },
@@ -288,8 +294,8 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "http://localhost:3000/api/carmakes/:id",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/carmakes/:id",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "carmakes", ":id"],
               "variable": [{ "key": "id", "value": "carmake-id-here" }]
             }
@@ -303,11 +309,11 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"country\": \"Updated Country\",\n  \"brand\": \"Updated Brand\",\n  \"updatedAt\": \"{{currentDate}}\"\n}"
+              "raw": "{\n  \"country\": \"Updated Country\",\n  \"brand\": \"Updated Brand\"\n}"
             },
             "url": {
-              "raw": "http://localhost:3000/api/carmakes/:id",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/carmakes/:id",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "carmakes", ":id"],
               "variable": [{ "key": "id", "value": "carmake-id-here" }]
             }
@@ -319,8 +325,8 @@
           "request": {
             "method": "DELETE",
             "url": {
-              "raw": "http://localhost:3000/api/carmakes/:id",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/carmakes/:id",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "carmakes", ":id"],
               "variable": [{ "key": "id", "value": "carmake-id-here" }]
             }
@@ -339,11 +345,11 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Car Name\",\n  \"price\": 25000,\n  \"year\": 2025,\n  \"color\": \"Color\",\n  \"wheelsCount\": 4,\n  \"createdAt\": \"{{currentDate}}\",\n  \"updatedAt\": \"{{currentDate}}\"\n}"
+              "raw": "{\n  \"name\": \"Car Name\",\n  \"price\": 25000,\n  \"year\": 2025,\n  \"color\": \"Color\",\n  \"wheelsCount\": 4\n}"
             },
             "url": {
-              "raw": "http://localhost:3000/api/dealers/:dealerId/carmakes/:carMakeId/cars",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/dealers/:dealerId/carmakes/:carMakeId/cars",
+              "host": ["{{baseUrl}}"],
               "path": [
                 "api",
                 "dealers",
@@ -365,8 +371,8 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "http://localhost:3000/api/cars",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/cars",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "cars"]
             }
           },
@@ -377,8 +383,8 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "http://localhost:3000/api/dealers/:dealerId/cars",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/dealers/:dealerId/cars",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "dealers", ":dealerId", "cars"],
               "variable": [{ "key": "dealerId", "value": "dealer-id-here" }]
             }
@@ -390,8 +396,8 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "http://localhost:3000/api/carmakes/:carMakeId/cars",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/carmakes/:carMakeId/cars",
+              "host": ["{{baseUrl}}"],
               "path": ["api", "carmakes", ":carMakeId", "cars"],
               "variable": [{ "key": "carMakeId", "value": "carmake-id-here" }]
             }
@@ -403,8 +409,8 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "http://localhost:3000/api/dealers/:dealerId/carmakes/:carMakeId/cars/:id",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/dealers/:dealerId/carmakes/:carMakeId/cars/:id",
+              "host": ["{{baseUrl}}"],
               "path": [
                 "api",
                 "dealers",
@@ -430,11 +436,11 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Updated Car Name\",\n  \"price\": 30000,\n  \"year\": 2024,\n  \"color\": \"New Color\",\n  \"wheelsCount\": 4,\n  \"updatedAt\": \"{{currentDate}}\"\n}"
+              "raw": "{\n  \"name\": \"Updated Car Name\",\n  \"price\": 30000,\n  \"year\": 2024,\n  \"color\": \"New Color\",\n  \"wheelsCount\": 4\n}"
             },
             "url": {
-              "raw": "http://localhost:3000/api/dealers/:dealerId/carmakes/:carMakeId/cars/:id",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/dealers/:dealerId/carmakes/:carMakeId/cars/:id",
+              "host": ["{{baseUrl}}"],
               "path": [
                 "api",
                 "dealers",
@@ -458,8 +464,8 @@
           "request": {
             "method": "DELETE",
             "url": {
-              "raw": "http://localhost:3000/api/dealers/:dealerId/carmakes/:carMakeId/cars/:id",
-              "host": ["localhost:3000"],
+              "raw": "{{baseUrl}}/api/dealers/:dealerId/carmakes/:carMakeId/cars/:id",
+              "host": ["{{baseUrl}}"],
               "path": [
                 "api",
                 "dealers",

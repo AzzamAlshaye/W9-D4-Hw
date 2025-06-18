@@ -1,6 +1,8 @@
 // src/controllers/Car.controller.ts
 import { Request, Response } from "express"
-import { CarModel } from "../models/Car.schema" //  Mongoose model
+import { CarModel } from "../models/Car.schema"
+import { CarDealerModel } from "../models/CarDealer.schema"
+import { CarMakeModel } from "../models/CarMake.schema"
 import { OK, CREATED, BAD_REQUEST, NOT_FOUND } from "../utils/http-status"
 
 // Create a new car
@@ -10,6 +12,7 @@ export const createCar = async (req: Request, res: Response): Promise<void> => {
     const carMakeId = req.body.carMakeId ?? req.params.carMakeId
     const { name, price, year, color, wheelsCount } = req.body
 
+    // Validate required fields
     if (
       !dealerId ||
       !carMakeId ||
@@ -27,6 +30,25 @@ export const createCar = async (req: Request, res: Response): Promise<void> => {
       return
     }
 
+    // Verify referenced Dealer exists
+    if (!(await CarDealerModel.exists({ _id: dealerId }))) {
+      res.status(NOT_FOUND).json({
+        success: false,
+        error: `No dealer found with id ${dealerId}`,
+      })
+      return
+    }
+
+    // Verify referenced CarMake exists
+    if (!(await CarMakeModel.exists({ _id: carMakeId }))) {
+      res.status(NOT_FOUND).json({
+        success: false,
+        error: `No car make found with id ${carMakeId}`,
+      })
+      return
+    }
+
+    // All good — create the car
     const car = await CarModel.create({
       dealerId,
       carMakeId,

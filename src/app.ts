@@ -9,7 +9,7 @@ import listRoutes from "./routes/list.routes"
 import itemRoutes from "./routes/item.routes"
 import dealerRouter from "./routes/CarDealer.routes"
 import makeRouter from "./routes/CarMake.routes"
-import { connectDB, deleteAllCollections } from "./config/database"
+import { connectDB } from "./config/database"
 import {
   carRouter,
   dealerCarsRouter,
@@ -25,11 +25,11 @@ dotenv.config()
 connectDB()
 
 // If in development, clear existing collections on startup (optional)
-if (dev) {
-  deleteAllCollections()
-    .then(() => logger.info("All collections dropped (development mode)"))
-    .catch((err) => logger.error("Failed to drop collections:", err))
-}
+// if (dev) {
+//   deleteAllCollections()
+//     .then(() => logger.info("All collections dropped (development mode)"))
+//     .catch((err) => logger.error("Failed to drop collections:", err))
+// }
 
 // Create Express app
 const app: Express = express()
